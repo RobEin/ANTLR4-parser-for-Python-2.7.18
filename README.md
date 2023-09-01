@@ -7,7 +7,7 @@
  - PythonLexerBase
    handles the Python indentations.
    
- - Examples files: [Python 2.7 Standard Lib](https://github.com/certik/python-2.7/tree/master/Lib)
+ - Example files: [Python 2.7 Standard Lib](https://github.com/certik/python-2.7/tree/master/Lib)
 
 
 ### Related links:
