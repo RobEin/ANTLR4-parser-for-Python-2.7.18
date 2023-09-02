@@ -27,7 +27,7 @@ THE SOFTWARE.
   */
 
 parser grammar PythonParser; // https://docs.python.org/2.7/reference/grammar.html
-options { tokenVocab=PythonLexer; superClass=PythonParserBase; }
+options { tokenVocab=PythonLexer; }
 // ANTLR4 grammar for Python
 
 // Start symbols for the grammar:
