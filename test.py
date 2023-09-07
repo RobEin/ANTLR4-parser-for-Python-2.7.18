@@ -1,2 +1,2 @@
-if true:
+if True:
     i = 1
