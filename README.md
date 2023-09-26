@@ -17,7 +17,7 @@
 
 [ANTLR 4 Runtime API](https://www.antlr.org/api/Java/)
 
-[Python 3.8 Lexical Analysis](https://docs.python.org/3.8/reference/lexical_analysis.html)
+[Python 2.7 Lexical Analysis](https://docs.python.org/2.7/reference/lexical_analysis.html)
 
 [ANTLR4 parser for Python 3.8](https://github.com/RobEin/ANTLR4-parser-for-Python-3.8)
 
