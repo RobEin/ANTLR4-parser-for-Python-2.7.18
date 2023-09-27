@@ -17,7 +17,7 @@
 antlr4 -Dlanguage=CSharp PythonLexer.g4
 antlr4 -Dlanguage=CSharp PythonParser.g4
 dotnet build
-dotnet run ..\examples\test.py --no-build
+dotnet run test.py --no-build
 ```
 
 #### Related links:
