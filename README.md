@@ -2,12 +2,12 @@
 
 ### About files:
  - PythonParser.g4
-   is the ANTLR4 parser grammar that based on the last official [Python 2 grammar](https://docs.python.org/2.7/reference/grammar.html).
+   is the ANTLR4 parser grammar that based on the last official [Python 2 grammar](https://docs.python.org/2.7/reference/grammar.html)
 
  - PythonLexerBase
-   handles the Python indentations.
+   handles the Python indentations
    
- - Example files: [Python 2.7 Standard Lib](https://github.com/certik/python-2.7/tree/master/Lib)
+ - Example files: Python 2.7 Standard Lib
 
 
 ### Related links:
