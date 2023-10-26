@@ -20,9 +20,11 @@ THE SOFTWARE.
  */
 
 /*
+ *
  * Project      : Python Indent/Dedent handler for ANTLR4 grammars
  *
- * Developed by : Robert Einhorn
+ * Developed by : Robert Einhorn, robert.einhorn.hu@gmail.com
+ *
  */
 
 import java.util.*;
@@ -31,10 +33,9 @@ import org.antlr.v4.runtime.*;
 
 public abstract class PythonLexerBase extends Lexer {
     // A stack that keeps track of the indentation lengths
-    private final LinkedList<Integer> _indentLengths = new LinkedList<>();
-
+    private LinkedList<Integer> _indentLengths = new LinkedList<>();
     // A linked list where tokens are waiting to be loaded into the token stream
-    private final LinkedList<Token> _pendingTokens = new LinkedList<>();
+    private LinkedList<Token> _pendingTokens = new LinkedList<>();
 
     // last pending token types
     private int _previousPendingTokenType = 0;
@@ -42,15 +43,11 @@ public abstract class PythonLexerBase extends Lexer {
 
     // The amount of opened parentheses, square brackets or curly braces
     private int _opened = 0;
-    // The amount of opened curly brace in the current lexer mode
-    private final LinkedList<Integer> _paren_or_bracketOpened = new LinkedList<>();
 
-    // Was there a space character in the indentations?
     private boolean _wasSpaceIndentation = false;
-    // Was there a tab character in the indentations?
     private boolean _wasTabIndentation = false;
     private boolean _wasIndentationMixedWithSpacesAndTabs = false;
-    private final int _INVALID_LENGTH = -1; // invalid length for mixed indentations with spaces and tabs
+    private final int _INVALID_LENGTH = -1;
 
     private CommonToken _curToken; // current (under processing) token
     private Token _ffgToken; // following (look ahead) token
@@ -75,15 +72,15 @@ public abstract class PythonLexerBase extends Lexer {
             }
 
             switch (_curToken.getType()) {
-                case PythonLexer.LPAR:   // OPEN_PAREN
-                case PythonLexer.LSQB:   // OPEN_BRACK
-                case PythonLexer.LBRACE: // OPEN_BRACE
+                case PythonLexer.LPAR:
+                case PythonLexer.LSQB:
+                case PythonLexer.LBRACE:
                     _opened++;
                     addPendingToken(_curToken);
                     break;
-                case PythonLexer.RPAR:   // CLOSE_PAREN
-                case PythonLexer.RSQB:   // CLOSE_BRACK
-                case PythonLexer.RBRACE: // CLOSE_BRACE
+                case PythonLexer.RPAR:
+                case PythonLexer.RSQB:
+                case PythonLexer.RBRACE:
                     _opened--;
                     addPendingToken(_curToken);
                     break;
@@ -92,9 +89,6 @@ public abstract class PythonLexerBase extends Lexer {
                     break;
                 case PythonLexer.STRING:
                     handleSTRINGtoken();
-                    break;
-                case PythonLexer.FSTRING_MIDDLE:
-                    handleFSTRING_MIDDLE_token();
                     break;
                 case PythonLexer.ERROR_TOKEN:
                     reportLexerError("token recognition error at: '" + _curToken.getText() + "'");
@@ -106,7 +100,6 @@ public abstract class PythonLexerBase extends Lexer {
                 default:
                     addPendingToken(_curToken);
             }
-            handleFORMAT_SPECIFICATION_MODE();
         }
     }
 
@@ -114,8 +107,6 @@ public abstract class PythonLexerBase extends Lexer {
         _curToken = _ffgToken == null ?
                     new CommonToken(super.nextToken()) :
                     new CommonToken(_ffgToken);
-
-        handleFStringLexerModes();
 
         _ffgToken = _curToken.getType() == EOF ?
                     _curToken :
@@ -158,8 +149,8 @@ public abstract class PythonLexerBase extends Lexer {
     }
 
     private void handleNEWLINEtoken() {
-        if (_opened > 0) { //*** https://docs.python.org/3/reference/lexical_analysis.html#implicit-line-joining
-            hideAndAddPendingToken(_curToken); // We're in an implicit line joining, ignore the current NEWLINE token
+        if (_opened > 0) { // We're in an implicit line joining, ignore the current NEWLINE token
+            hideAndAddPendingToken(_curToken);
         } else {
             CommonToken nlToken = _curToken; // save the current NEWLINE token
             final boolean isLookingAhead = _ffgToken.getType() == PythonLexer.WS;
@@ -170,8 +161,7 @@ public abstract class PythonLexerBase extends Lexer {
             switch (_ffgToken.getType()) {
                 case PythonLexer.NEWLINE:      // We're before a blank line
                 case PythonLexer.COMMENT:      // We're before a comment
-                case PythonLexer.TYPE_COMMENT: // We're before a type comment
-                    hideAndAddPendingToken(nlToken); // ignore the NEWLINE token
+                    hideAndAddPendingToken(nlToken);
                     if (isLookingAhead) {
                         addPendingToken(_curToken);  // WS token
                     }
@@ -197,15 +187,14 @@ public abstract class PythonLexerBase extends Lexer {
     }
 
     private void insertIndentOrDedentToken(final int curIndentLength) {
-        //*** https://docs.python.org/3/reference/lexical_analysis.html#indentation
-        int prevIndentLength = _indentLengths.peekLast(); // never has null value
+        int prevIndentLength = _indentLengths.peekLast();
         if (curIndentLength > prevIndentLength) {
             createAndAddPendingToken(PythonLexer.INDENT, Token.DEFAULT_CHANNEL, null, _ffgToken);
             _indentLengths.addLast(curIndentLength);
         } else {
             while (curIndentLength < prevIndentLength) { // more than 1 DEDENT token may be inserted to the token stream
                 _indentLengths.removeLast();
-                prevIndentLength = _indentLengths.peekLast(); // never has null value
+                prevIndentLength = _indentLengths.peekLast();
                 if (curIndentLength <= prevIndentLength) {
                     createAndAddPendingToken(PythonLexer.DEDENT, Token.DEFAULT_CHANNEL, null, _ffgToken);
                 } else {
@@ -216,7 +205,6 @@ public abstract class PythonLexerBase extends Lexer {
     }
 
     private void handleSTRINGtoken() { // remove the \<newline> escape sequences from the string literal
-        // https://docs.python.org/3.11/reference/lexical_analysis.html#string-and-bytes-literals
         final String line_joinFreeStringLiteral = _curToken.getText().replaceAll("\\\\\\r?\\n", "");
         if (_curToken.getText().length() == line_joinFreeStringLiteral.length()) {
             addPendingToken(_curToken);
@@ -226,84 +214,6 @@ public abstract class PythonLexerBase extends Lexer {
             addPendingToken(_curToken);                  // add the modified token with inline string literal
             hideAndAddPendingToken(originalSTRINGtoken); // add the original token to the hidden channel
             // this inserted hidden token allows to restore the original string literal with the \<newline> escape sequences
-        }
-    }
-
-    private void handleFSTRING_MIDDLE_token() { // replace the double braces '{{' or '}}' to single braces and hide the second braces
-        String fsMid = _curToken.getText();
-        fsMid = fsMid.replaceAll("\\{\\{", "{_").replaceAll("\\}\\}", "}_"); // replace: {{ --> {_    }} --> }_
-        String[] arrOfStr = fsMid.split("(?<=[{}])_"); // split by {_  or  }_
-        for (String s : arrOfStr) {
-            if (!s.isEmpty()) {
-                createAndAddPendingToken(PythonLexer.FSTRING_MIDDLE, Token.DEFAULT_CHANNEL, s, _ffgToken);
-                String lastCharacter = s.substring(s.length() - 1);
-                if ("{}".contains(lastCharacter)) {
-                    createAndAddPendingToken(PythonLexer.FSTRING_MIDDLE, Token.HIDDEN_CHANNEL, lastCharacter, _ffgToken);
-                    // this inserted hidden token allows to restore the original f-string literal with the double braces
-                }
-            }
-        }
-    }
-
-    private void handleFStringLexerModes() { // https://peps.python.org/pep-0498/#specification
-        if (!_modeStack.isEmpty()) {
-            switch (_curToken.getType()) {
-                case PythonLexer.LBRACE: // OPEN_BRACE
-                    pushMode(PythonLexer.DEFAULT_MODE);
-                    _paren_or_bracketOpened.addLast(0);
-                    break;
-                case PythonLexer.LPAR:   // OPEN_PAREN
-                case PythonLexer.LSQB:   // OPEN_BRACK
-                    // https://peps.python.org/pep-0498/#lambdas-inside-expressions
-                    _paren_or_bracketOpened.addLast(_paren_or_bracketOpened.removeLast() + 1); // increment the last element
-                    break;
-                case PythonLexer.RPAR:   // CLOSE_PAREN
-                case PythonLexer.RSQB:   // CLOSE_BRACK
-                    _paren_or_bracketOpened.addLast(_paren_or_bracketOpened.removeLast() - 1); // decrement the last element
-                    break;
-                case PythonLexer.COLON: // colon can only come from DEFAULT_MODE
-                    if (_paren_or_bracketOpened.peekLast() == 0) {
-                        switch (_modeStack.peek()) { // check the previous lexer mode (the current is DEFAULT_MODE)
-                            case PythonLexer.SINGLE_QUOTE_FSTRING_MODE:
-                            case PythonLexer.LONG_SINGLE_QUOTE_FSTRING_MODE:
-                            case PythonLexer.SINGLE_QUOTE_FORMAT_SPECIFICATION_MODE:
-                                mode(PythonLexer.SINGLE_QUOTE_FORMAT_SPECIFICATION_MODE); // continue in format spec. mode
-                                break;
-                            case PythonLexer.DOUBLE_QUOTE_FSTRING_MODE:
-                            case PythonLexer.LONG_DOUBLE_QUOTE_FSTRING_MODE:
-                            case PythonLexer.DOUBLE_QUOTE_FORMAT_SPECIFICATION_MODE:
-                                mode(PythonLexer.DOUBLE_QUOTE_FORMAT_SPECIFICATION_MODE); // continue in format spec. mode
-                                break;
-                        }
-                    }
-                    break;
-                case PythonLexer.RBRACE: // CLOSE_BRACE
-                    switch (_mode) {
-                        case PythonLexer.DEFAULT_MODE:
-                        case PythonLexer.SINGLE_QUOTE_FORMAT_SPECIFICATION_MODE:
-                        case PythonLexer.DOUBLE_QUOTE_FORMAT_SPECIFICATION_MODE:
-                            popMode();
-                            _paren_or_bracketOpened.removeLast();
-                            break;
-                        default:
-                            reportLexerError("f-string: single '}' is not allowed");
-                    }
-                    break;
-            }
-        }
-    }
-
-    private void handleFORMAT_SPECIFICATION_MODE() {
-        if (!_modeStack.isEmpty() &&
-            _ffgToken.getType() == PythonLexer.RBRACE) {
-
-            switch (_curToken.getType()) {
-                case PythonLexer.COLON:
-                case PythonLexer.RBRACE:
-                    // insert an empty FSTRING_MIDDLE token instead of the missing format specification
-                    createAndAddPendingToken(PythonLexer.FSTRING_MIDDLE, Token.DEFAULT_CHANNEL, "", _ffgToken);
-                    break;
-            }
         }
     }
 
@@ -350,29 +260,24 @@ public abstract class PythonLexerBase extends Lexer {
         if (token.getChannel() == Token.DEFAULT_CHANNEL) {
             _lastPendingTokenTypeForDefaultChannel = _previousPendingTokenType;
         }
-        _pendingTokens.addLast(token); // the token will be added to the token stream
+        _pendingTokens.addLast(token);
     }
 
-    // Calculates the indentation of the provided spaces, taking the
-    // following rules into account:
-    //
-    // "Tabs are replaced (from left to right) by one to eight spaces
-    //  such that the total number of characters up to and including
-    //  the replacement is a multiple of eight [...]"
-    //
-    //  -- https://docs.python.org/3/reference/lexical_analysis.html#indentation
     private int getIndentationLength(final String textWS) { // the textWS may contain spaces, tabs or formfeeds
         final int TAB_LENGTH = 8; // the standard number of spaces to replace a tab to spaces
         int length = 0;
         for (char ch : textWS.toCharArray()) {
             switch (ch) {
-                case ' ': // A normal space char
+                case ' ':
                     _wasSpaceIndentation = true;
                     length += 1;
                     break;
                 case '\t':
                     _wasTabIndentation = true;
                     length += TAB_LENGTH - (length % TAB_LENGTH);
+                    break;
+                case '\f': // formfeed
+                    length = 0;
                     break;
             }
         }
