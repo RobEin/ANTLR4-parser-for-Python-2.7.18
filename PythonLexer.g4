@@ -142,7 +142,7 @@ WS : [ \t\f]+                        -> channel(HIDDEN);
 // https://docs.python.org/2.7/reference/lexical_analysis.html#explicit-line-joining
 EXPLICIT_LINE_JOINING : '\\' NEWLINE -> channel(HIDDEN);
 
-ERROR_TOKEN : . ; // catch unrecognized characters and redirect these errors to the parser
+ERRORTOKEN : . ; // catch unrecognized characters and redirect these errors to the parser
 
 
 /*
