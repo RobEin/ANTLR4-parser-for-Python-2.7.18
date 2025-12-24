@@ -21,7 +21,7 @@ THE SOFTWARE.
  */
 
  /*
-  * Project      : an ANTLR4 lexer grammar for Python 2.7.18
+  * Project      : an ANTLR4 lexer grammar for Python 2.7.18 programming language
   *                https://github.com/RobEin/ANTLR4-parser-for-Python-2.7.18
   * Developed by : Robert Einhorn, robert.einhorn.hu@gmail.com
   *
@@ -29,6 +29,7 @@ THE SOFTWARE.
 
 lexer grammar PythonLexer;
 
+// the helper class for this grammar that assists in tokenizing indentation
 options { superClass=PythonLexerBase; }
 
 tokens { 
@@ -40,12 +41,12 @@ tokens {
  */
 
 // https://docs.python.org/2.7/library/token.html#token.OP
-LPAR             : '(';  // OPEN_PAREN
-LSQB             : '[';  // OPEN_BRACK
-LBRACE           : '{';  // OPEN_BRACE
-RPAR             : ')';  // CLOSE_PAREN
-RSQB             : ']';  // CLOSE_BRACK
-RBRACE           : '}';  // CLOSE_BRACE
+LPAR             : '(';
+LSQB             : '[';
+LBRACE           : '{';
+RPAR             : ')';
+RSQB             : ']';
+RBRACE           : '}';
 COLON            : ':';
 COMMA            : ',';
 SEMI             : ';';

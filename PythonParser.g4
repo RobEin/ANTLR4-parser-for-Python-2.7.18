@@ -21,7 +21,7 @@ THE SOFTWARE.
  */
 
  /*
-  * Project      : an ANTLR4 parser grammar by the official Python 2.7.18 grammar
+  * Project      : an ANTLR4 parser grammar for Python 2.7.18 programming language based on the official grammar
   *                https://github.com/RobEin/ANTLR4-parser-for-Python-2.7.18
   * Developed by : Robert Einhorn
   */
