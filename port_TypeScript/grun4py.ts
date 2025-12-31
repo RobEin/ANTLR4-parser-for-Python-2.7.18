@@ -14,7 +14,7 @@ class Grun4py {
         const filePath = args[0]!;
 
         try {
-            const input = CharStreams.fromPathSync(filePath, "utf-8");
+            const input = CharStreams.fromPathSync(filePath, "ascii");
             const lexer = new PythonLexer(input);
             const tokens = new CommonTokenStream(lexer);
             const parser = new PythonParser(tokens);

@@ -18,7 +18,7 @@ namespace grun4py
             try
             {
                 var filePath = args[0];
-                var input = CharStreams.fromPath(filePath, Encoding.GetEncoding("utf-8"));
+                var input = CharStreams.fromPath(filePath, Encoding.GetEncoding("ascii"));
                 var lexer = new PythonLexer(input);
                 var tokens = new CommonTokenStream((ITokenSource)lexer);
                 var parser = new PythonParser(tokens);

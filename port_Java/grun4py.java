@@ -17,7 +17,7 @@ public class grun4py {
 
         try {
             final Path path = Paths.get(args[0]);
-            CharStream input = CharStreams.fromPath(path, Charset.forName("utf-8"));
+            CharStream input = CharStreams.fromPath(path, Charset.forName("ascii"));
             PythonLexer lexer = new PythonLexer(input);
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             PythonParser parser = new PythonParser(tokens);

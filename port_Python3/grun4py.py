@@ -30,7 +30,7 @@ def main() -> int:
             return 1
 
         file_path: str = sys.argv[1]
-        input_stream: FileStream = FileStream(file_path, "utf-8")
+        input_stream: FileStream = FileStream(file_path, "ascii")
         lexer: PythonLexer = PythonLexer(input_stream)
         token_stream: CommonTokenStream = CommonTokenStream(lexer)
         parser: PythonParser = PythonParser(token_stream)
